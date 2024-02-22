@@ -1,0 +1,24 @@
+const http = require('http');
+const httpProxy = require('http-proxy');
+
+const proxy = httpProxy.createProxyServer({});
+
+const server = http.createServer(function(req, res) {
+  let url = req.url;
+  
+  // Check if the URL is from a Google site and modify the headers to unblock games
+  if (url.includes('google.com')) {
+    req.headers['Referer'] = 'https://www.google.com/';
+    req.headers['Origin'] = 'https://www.google.com/';
+
+    proxy.web(req, res, { target: 'https://www.google.com' });
+
+  } else {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('Blocked: Only Google sites are allowed through this proxy.');
+  }
+});
+
+server.listen(3000, () => {
+  console.log('Proxy server running on port 3000');
+});
